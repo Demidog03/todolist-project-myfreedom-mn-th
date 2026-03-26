@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+:root {
+    --darkest-color: #151518;
+    --dark-grey: #2b2b2b;
+    --grey: #55595b;
+    --light-grey: #848d8d;
+    --lighest-grey: #b2c2c1;
+    --turquoise: #d7ebe9;
+    --turquoise-hover: #a2c3c0;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Outfit", sans-serif;
+
+    color: var(--turquoise);
+}
+
+body {
+    background-color: var(--darkest-color);
+}
+
+.container {
+    max-width: 900px;
+    padding: 40px 10px;
+    margin-inline: auto;
+}
+
+.container h1 {
+    font-size: 3.5rem;
+}
+
+.addTaskForm {
+    display: flex;
+    gap: 20px;
+    padding: 30px 0;
+}
+
+.addTaskForm input {
+    width: 100%;
+    font-size: 2rem;
+    padding: 20px;
+    border-radius: 20px;
+    color: white;
+    background-color: var(--dark-grey);
+    border: 0;
+    font-weight: 600;
+}
+
+.addTaskForm input::placeholder {
+    color: var(--lighest-grey);
+}
+
+.addTaskForm input:focus {
+    outline: 0;
+}
+
+.addTaskForm button {
+    background-color: var(--turquoise);
+    font-size: 2rem;
+    padding: 20px;
+    font-weight: 700;
+    border: 0;
+    border-radius: 17px;
+    color: var(--darkest-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.addTaskForm button:hover {
+    background-color: var(--turquoise-hover);
+    transform: scale(1.05);
+}
+
+.todoList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    list-style: none;
+    margin-top: 50px;
+}
+
+.todoList li {
+    padding: 20px;
+    background-color: var(--grey);
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.removeBtn {
+    padding: 10px;
+    background-color: rgb(163, 22, 22);
+    border: none;
+    border-radius: 10px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.removeBtn:hover {
+    background-color: rgb(113, 11, 11);
+    transform: scale(1.05);
+}
+
+.todoList li span {
+    max-width: 80%;
+    /* word-break: break-all; */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
