@@ -95,9 +95,8 @@ body {
     gap: 20px;
 }
 
-.removeBtn {
+.todoList li button {
     padding: 10px;
-    background-color: rgb(163, 22, 22);
     border: none;
     border-radius: 10px;
     font-size: 1.3rem;
@@ -106,9 +105,37 @@ body {
     transition: background-color 0.2s ease-out, transform 0.2s ease-out;
 }
 
+.removeBtn {
+    background-color: rgb(163, 22, 22);
+}
+
 .removeBtn:hover {
     background-color: rgb(113, 11, 11);
     transform: scale(1.05);
+}
+
+.doneBtn {
+    background-color: rgb(22, 163, 48);
+}
+
+.doneBtn:hover {
+    background-color: rgb(14, 139, 37);
+    transform: scale(1.05);
+}
+
+.workingBtn {
+    background-color: rgb(163, 121, 22);
+}
+
+.workingBtn:hover {
+    background-color: rgb(141, 104, 17);
+    transform: scale(1.05);
+}
+
+.todoList li .buttonsContainer {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 .todoList li span {
