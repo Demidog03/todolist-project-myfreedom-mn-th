@@ -10,34 +10,40 @@ render()
 todoButton.addEventListener('click', (event) => {
     event.preventDefault()
 
-    addNewTaskToLS()
-
-    // Re-render - Повторная отрисовка
-    render()
+    addNewTask()
 })
 
-function addNewTaskToLS() {
+function addNewTask() {
     const taskText = todoInput.value.trim()
 
-    // Сохраняем данные в localStorage
-    const oldTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-    oldTasks.push(
-        {
-            id: Date.now() + Math.random() * 100,
-            text: taskText,
-            status: 'Working'
-        }
-    )
-    const updatedTasks = JSON.stringify(oldTasks)
-    localStorage.setItem('tasks', updatedTasks)
+    if (!taskText) {
+        alert('Пожалуйста заполните данные корректно')
+        return
+    }
+
+    const todosBodyJSON = JSON.stringify({
+        text: taskText
+    })
+
+    fetch('http://localhost:6767/api/todos', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: todosBodyJSON
+    }).finally(() => {
+        render()
+    })
 
     todoInput.value = ''
 }
 
-function removeTaskToLS(task) {
-    const oldTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-    const updatedTasks = JSON.stringify(oldTasks.filter(t => t.id !== task.id))
-    localStorage.setItem('tasks', updatedTasks)
+function removeTask(task) {
+    fetch(`http://localhost:6767/api/todos/${task.id}`, {
+        method: 'DELETE'
+    }).finally(() => {
+        render()
+    })
 }
 
 function changeTaskStatus(task, newStatus) {
@@ -51,67 +57,73 @@ function render() {
     // Очистка списка
     todoList.innerHTML = ''
 
-    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-    tasks.forEach(task => {
-        if (!task) {
-            alert('Please enter valid task')
-            return
-        }
+    fetch('http://localhost:6767/api/todos', {
+        method: 'GET'
+    }).then(response => {
+        return response.json()
+    }).then(tasks => {
+        console.log(tasks)
 
-        // Создаем пустой li
-        const li = document.createElement('li')
-        todoList.prepend(li)
+        tasks.forEach(task => {
+            if (!task) {
+                alert('Please enter valid task')
+                return
+            }
 
-        // Создаем span
-        const span = document.createElement('span')
-        span.innerText = task.text
-        li.appendChild(span)
+            // Создаем пустой li
+            const li = document.createElement('li')
+            todoList.prepend(li)
 
-        // Создать buttonsContainer
-        const buttonsContainer = document.createElement('div')
-        buttonsContainer.classList.add('buttonsContainer')
+            // Создаем span
+            const span = document.createElement('span')
+            span.innerText = task.text
+            li.appendChild(span)
 
-        // Создать кнопку Working или Done
-        if (task.status === 'Working') {
-            const workingBtn = document.createElement('button')
-            workingBtn.classList.add('workingBtn')
-            workingBtn.innerText = 'Working'
+            // Создать buttonsContainer
+            const buttonsContainer = document.createElement('div')
+            buttonsContainer.classList.add('buttonsContainer')
 
-            workingBtn.addEventListener('click', () => {
-                changeTaskStatus(task, 'Done')
-                render()
+            // Создать кнопку Working или Done
+            if (task.status === 'in-progress') {
+                const workingBtn = document.createElement('button')
+                workingBtn.classList.add('workingBtn')
+                workingBtn.innerText = 'In progress'
+
+                workingBtn.addEventListener('click', () => {
+                    changeTaskStatus(task, 'in-progress')
+                    render()
+                })
+
+                buttonsContainer.appendChild(workingBtn)
+            }
+            else if (task.status === 'completed') {
+                const doneBtn = document.createElement('button')
+                doneBtn.classList.add('doneBtn')
+                doneBtn.innerText = 'Completed'
+
+                doneBtn.addEventListener('click', () => {
+                    changeTaskStatus(task, 'completed')
+                    render()
+                })
+
+                buttonsContainer.appendChild(doneBtn)
+            }
+
+            // Кнопка удаления задачи
+            const removeBtn = document.createElement('button')
+            removeBtn.classList.add('removeBtn')
+            removeBtn.innerText = 'Remove'
+            buttonsContainer.appendChild(removeBtn)
+
+            // buttonsContainer добавить li
+            li.appendChild(buttonsContainer)
+
+            // Удаление задачи из localStorage
+            removeBtn.addEventListener('click', () => {
+                removeTask(task)
             })
-
-            buttonsContainer.appendChild(workingBtn)
-        }
-        else if (task.status === 'Done') {
-            const doneBtn = document.createElement('button')
-            doneBtn.classList.add('doneBtn')
-            doneBtn.innerText = 'Done'
-
-            doneBtn.addEventListener('click', () => {
-                changeTaskStatus(task, 'Working')
-                render()
-            })
-
-            buttonsContainer.appendChild(doneBtn)
-        }
-
-        // Кнопка удаления задачи
-        const removeBtn = document.createElement('button')
-        removeBtn.classList.add('removeBtn')
-        removeBtn.innerText = 'Remove'
-        buttonsContainer.appendChild(removeBtn)
-
-        // buttonsContainer добавить li
-        li.appendChild(buttonsContainer)
-
-        // Удаление задачи из localStorage
-        removeBtn.addEventListener('click', () => {
-            removeTaskToLS(task)
-            render()
-        })
-    });
+        });
+    })
 }
 
 // console.log(localStorage)
