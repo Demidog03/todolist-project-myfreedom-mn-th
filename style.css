@@ -145,3 +145,24 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.spinner-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100dvw;
+    height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.spinner-container svg {
+    width: 40px;
+}
+
+.hidden {
+    display: none !important;
+}

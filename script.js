@@ -3,6 +3,7 @@
 const todoInput = document.querySelector('#todoInput')
 const todoButton = document.querySelector('#todoButton')
 const todoList = document.querySelector('#todoList')
+const spinner = document.querySelector('#spinner')
 
 // Initial Render - Первичная отрисовка
 render()
@@ -13,55 +14,90 @@ todoButton.addEventListener('click', (event) => {
     addNewTask()
 })
 
-function addNewTask() {
-    const taskText = todoInput.value.trim()
+async function addNewTask() {
+    try {
+        startSpinner()
+        const taskText = todoInput.value.trim()
 
-    if (!taskText) {
-        alert('Пожалуйста заполните данные корректно')
-        return
+        if (!taskText) {
+            alert('Пожалуйста заполните данные корректно')
+            return
+        }
+
+        const todosBodyJSON = JSON.stringify({
+            text: taskText
+        })
+
+        await fetch('http://localhost:6767/api/todos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: todosBodyJSON
+        })
+
+        todoInput.value = ''
     }
-
-    const todosBodyJSON = JSON.stringify({
-        text: taskText
-    })
-
-    fetch('http://localhost:6767/api/todos', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: todosBodyJSON
-    }).finally(() => {
+    catch (err) {
+        console.log('Ошибка при создании задачи', err)
+    }
+    finally {
+        stopSpinner()
         render()
-    })
-
-    todoInput.value = ''
+    }
 }
 
-function removeTask(task) {
-    fetch(`http://localhost:6767/api/todos/${task.id}`, {
-        method: 'DELETE'
-    }).finally(() => {
+async function removeTask(task) {
+    try {
+        startSpinner()
+        await fetch(`http://localhost:6767/api/todos/${task.id}`, {
+            method: 'DELETE'
+        })
+    }
+    catch (error) {
+        console.log('Ошибка при удалении задачи', error)
+    }
+    finally {
+        stopSpinner()
         render()
-    })
+    }
 }
 
-function changeTaskStatus(task, newStatus) {
-    const oldTasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-    const taskToUpdate = oldTasks.find(t => t.id === task.id)
-    taskToUpdate.status = newStatus
-    localStorage.setItem('tasks', JSON.stringify(oldTasks))
+async function changeTaskStatus(task, newStatus) {
+    try {
+        startSpinner()
+        const bodyJSON = JSON.stringify({
+            status: newStatus
+        })
+
+        await fetch(`http://localhost:6767/api/todos/${task.id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: bodyJSON
+        })
+    }
+    catch(err) {
+        console.error('Ошибка при изменении статуса', err)
+    }
+    finally {
+        stopSpinner()
+    }
 }
 
-function render() {
-    // Очистка списка
-    todoList.innerHTML = ''
+async function render() {
+    try {
+        startSpinner()
 
-    fetch('http://localhost:6767/api/todos', {
-        method: 'GET'
-    }).then(response => {
-        return response.json()
-    }).then(tasks => {
+        // Очистка списка
+        todoList.innerHTML = ''
+
+        const response = await fetch('http://localhost:6767/api/todos', {
+            method: 'GET'
+        })
+        const tasks = await response.json()
+
         console.log(tasks)
 
         tasks.forEach(task => {
@@ -89,8 +125,8 @@ function render() {
                 workingBtn.classList.add('workingBtn')
                 workingBtn.innerText = 'In progress'
 
-                workingBtn.addEventListener('click', () => {
-                    changeTaskStatus(task, 'in-progress')
+                workingBtn.addEventListener('click', async () => {
+                    await changeTaskStatus(task, 'completed')
                     render()
                 })
 
@@ -101,8 +137,8 @@ function render() {
                 doneBtn.classList.add('doneBtn')
                 doneBtn.innerText = 'Completed'
 
-                doneBtn.addEventListener('click', () => {
-                    changeTaskStatus(task, 'completed')
+                doneBtn.addEventListener('click', async () => {
+                    await changeTaskStatus(task, 'in-progress')
                     render()
                 })
 
@@ -123,7 +159,21 @@ function render() {
                 removeTask(task)
             })
         });
-    })
+    }
+    catch(err) {
+        console.log('Ошибка при получении списка задач', err)
+    }
+    finally {
+        stopSpinner()
+    }
+}
+
+function startSpinner() {
+    spinner.classList.remove('hidden')
+}
+
+function stopSpinner() {
+    spinner.classList.add('hidden')
 }
 
 // console.log(localStorage)
